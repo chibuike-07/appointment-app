@@ -1,0 +1,3 @@
+# Root level ignores (if any)
+
+# Let each subfolder's .gitignore handle their own ignores

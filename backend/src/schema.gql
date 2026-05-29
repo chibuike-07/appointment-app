@@ -1,0 +1,29 @@
+# ------------------------------------------------------
+# THIS FILE WAS AUTOMATICALLY GENERATED (DO NOT MODIFY)
+# ------------------------------------------------------
+
+type Appointment {
+  id: Int!
+  name: String!
+  date: String!
+  time: String!
+  completed: Boolean!
+  reminderBeforeSent: Boolean!
+  reminderAtSent: Boolean!
+  notificationShown: Boolean!
+  notificationType: String
+}
+
+type Query {
+  hello: String!
+  status: String!
+  appointments: [Appointment!]!
+  dueNotifications: [Appointment!]!
+}
+
+type Mutation {
+  createAppointment(name: String!, date: String!, time: String!): Appointment!
+  updateAppointment(id: Int!, completed: Boolean!): Appointment!
+  deleteAppointment(id: Int!): Boolean!
+  markNotificationShown(id: Float!): Boolean!
+}
