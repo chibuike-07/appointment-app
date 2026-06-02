@@ -10,10 +10,12 @@ export class AuthService {
     private jwtService: JwtService,
   ) {}
 
-  async register(email: string, password: string) {
+  async register(email: string, password: string, firstName: string, lastName: string) {
     const hashedPassword = await bcrypt.hash(password, 10);
 
     return this.usersService.create({
+      firstName,
+      lastName,
       email,
       password: hashedPassword,
     });
@@ -33,6 +35,8 @@ export class AuthService {
         sub: user.id,
         email: user.email,
       }),
+      firstName: user.firstName,
+      lastName: user.lastName,
     };
   }
 }

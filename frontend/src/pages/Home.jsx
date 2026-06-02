@@ -18,13 +18,25 @@ import { GET_APPOINTMENTS } from "../graphql/queries/queries.js";
 
 const Home = () => {
   const [authMode, setAuthMode] = useState("login")
-  // const [loading, setLoading] = useState(false);
-  // const [error, setError] = useState(null);
   const [creating, setCreating] = useState(false);
 
   // const [appointments, setAppointments] = useState([]);
 
   const [isLoggedIn, setIsLoggedIn] = useState(isAuthenticated());
+  const [firstName, setFirstName] = useState('');
+  const [lastName, setLastName] = useState('');
+  useEffect(() => {
+    setFirstName(localStorage.getItem('firstName') || '');
+    setLastName(localStorage.getItem('lastName') || '');
+  }, []);
+
+  // Reload name when user logs in
+  useEffect(() => {
+    if (isLoggedIn) {
+      setFirstName(localStorage.getItem('firstName') || '');
+      setLastName(localStorage.getItem('lastName') || '');
+    }
+  }, [isLoggedIn]);
 
   const handleLogout = () => {
     removeToken();
@@ -140,8 +152,13 @@ const Home = () => {
     );
   }
   if (loading) {
-    return <p>loading Appointments</p>
-  };
+    return (
+      <div className="loading-container">
+        <div className="loading-spinner"></div>
+        <p className="loading-text">Loading Appointments...</p>
+      </div>
+    );
+  }
   if (error) {
     console.error('GraphQL error:', error.message);
     if (error.message.includes('Unauthorized')) {
@@ -153,8 +170,18 @@ const Home = () => {
   }
   return (
     <div className="homepage">
-      <Header title="Appointment Booking System"/>
+      <Header title="Appointment Booking System" />
       <button onClick={handleLogout}>logout </button>
+      {firstName || lastName ? (
+        <div className="welcome-greeting" style={{
+          fontWeight: 'bold',
+          fontSize: '1.1rem',
+          color: '#6366f1',
+          padding: '1rem 0',
+        }}>
+          Welcome, {firstName} {lastName}
+        </div>
+      ) : null}
       <AppointmentCounter appointments={appointments} />
       <div className="form-list section">
         <AppointmentForm onAdd={addAppointment} creating={creating} />
@@ -163,6 +190,7 @@ const Home = () => {
         <AppointmentList appointments={appointments} onDelete={handleDelete} onToggle={toggleComplete} onEdit={handleUpdate} />
         {/* {error && <p>{error}</p>} */}
       </div>
+      <footer className="home-footer" />
     </div>
   );
 };

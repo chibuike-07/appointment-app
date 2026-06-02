@@ -73,8 +73,8 @@ export class AppointmentsService {
     await this.appointmentRepo.delete(id);
   }
 
-  async update(id: number, update: Partial<any>) { //i changed data to update, duuno why, but i did..
-  await this.appointmentRepo.update(id, update); //here too..
+  async update(id: number, update: Partial<any>) {
+  await this.appointmentRepo.update(id, update); 
   return this.appointmentRepo.findOneBy({ id });
   }
 

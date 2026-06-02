@@ -10,6 +10,8 @@ export class AuthController {
     return this.authService.register(
       body.email,
       body.password,
+      body.firstName,
+      body.lastName,
     );
   }
 

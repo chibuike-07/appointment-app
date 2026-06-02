@@ -152,8 +152,26 @@ const AppointmentList = ({ appointments, onDelete, onToggle, onEdit }) => {
       >
         Delete
       </button>
-      <button onClick={() => startEdit(appt)}>
-        Edit
+      <button onClick={() => startEdit(appt)}
+        title="Edit"
+        style={{
+          padding: "4px",
+          border: "none",
+          cursor: "pointer",
+          color: "var(--text-secondary)",
+          backgroundColor: "transparent",
+          display: "inline-flex",
+          alignItems: "center",
+          justifyContent: "center",
+          transition: "color 0.2s"
+        }}
+        onMouseEnter={(e) => e.currentTarget.style.color = "var(--accent)"}
+        onMouseLeave={(e) => e.currentTarget.style.color = "var(--text-secondary)"}
+      >
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+          <path d="M12 20h9"/>
+          <path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4Z"/>
+        </svg>
       </button>
     </div>
   );
@@ -161,19 +179,62 @@ const AppointmentList = ({ appointments, onDelete, onToggle, onEdit }) => {
   return (
     <div className="appointment-list-wrapper">
       <div className="appointment-list-header">
-        <h3>Appointments</h3>
-        <input type="text" placeholder="Search Appointment" value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} />
-        <select value={filter}
-          onChange={(e) => setFilter(e.target.value)}>
-          <option value="all">All</option>
-          <option value="overdue">Overdue</option>
-          <option value="today">Today</option>
-          <option value="tomorrow">Tomorrow</option>
-          <option value="upcoming">Upcoming</option>
-        </select>
+        <span title="Appointments" style={{ display: 'flex', alignItems: 'center' }}>
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/>
+            <rect x="8" y="2" width="8" height="4" rx="1" ry="1"/>
+            <line x1="8" y1="12" x2="16" y2="12"/>
+            <line x1="8" y1="16" x2="12" y2="16"/>
+          </svg>
+        </span>
+        <div className="search-wrapper">
+          <span className="search-icon">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <circle cx="11" cy="11" r="8"/>
+              <line x1="21" y1="21" x2="16.65" y2="16.65"/>
+            </svg>
+          </span>
+          <input className="search-input" type="text" placeholder="Search Appointment" value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} />
+        </div>
+        <div className="filter-wrapper">
+          <span className="filter-icon">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"/>
+            </svg>
+          </span>
+          <select value={filter}
+            onChange={(e) => setFilter(e.target.value)}>
+            <option value="all">All</option>
+            <option value="overdue">Overdue</option>
+            <option value="today">Today</option>
+            <option value="tomorrow">Tomorrow</option>
+            <option value="upcoming">Upcoming</option>
+          </select>
+          <span className="dropdown-arrow">
+            <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+              <polyline points="6 9 12 15 18 9"/>
+            </svg>
+          </span>
+        </div>
       </div>
       {appointments.length === 0 ? (
-        <p>No appointments yet</p>
+        <div style={{
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'center',
+          justifyContent: 'center',
+          padding: '3rem 1rem',
+          color: 'var(--text-secondary)',
+          gap: '0.75rem',
+        }}>
+          <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="var(--text-secondary)" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+            <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/>
+            <line x1="16" y1="2" x2="16" y2="6"/>
+            <line x1="8" y1="2" x2="8" y2="6"/>
+            <line x1="3" y1="10" x2="21" y2="10"/>
+          </svg>
+          <p style={{ fontSize: '1.1rem', fontWeight: '500', margin: 0 }}>No appointments yet</p>
+        </div>
       ) : (
         <div>
           {visibleSections.overdue?.length > 0 && (

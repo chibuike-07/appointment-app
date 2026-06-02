@@ -1,98 +1,177 @@
-<p align="center">
-  <a href="http://nestjs.com/" target="blank"><img src="https://nestjs.com/img/logo-small.svg" width="120" alt="Nest Logo" /></a>
-</p>
-
-[circleci-image]: https://img.shields.io/circleci/build/github/nestjs/nest/master?token=abc123def456
-[circleci-url]: https://circleci.com/gh/nestjs/nest
-
-  <p align="center">A progressive <a href="http://nodejs.org" target="_blank">Node.js</a> framework for building efficient and scalable server-side applications.</p>
-    <p align="center">
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/v/@nestjs/core.svg" alt="NPM Version" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/l/@nestjs/core.svg" alt="Package License" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/dm/@nestjs/common.svg" alt="NPM Downloads" /></a>
-<a href="https://circleci.com/gh/nestjs/nest" target="_blank"><img src="https://img.shields.io/circleci/build/github/nestjs/nest/master" alt="CircleCI" /></a>
-<a href="https://discord.gg/G7Qnnhy" target="_blank"><img src="https://img.shields.io/badge/discord-online-brightgreen.svg" alt="Discord"/></a>
-<a href="https://opencollective.com/nest#backer" target="_blank"><img src="https://opencollective.com/nest/backers/badge.svg" alt="Backers on Open Collective" /></a>
-<a href="https://opencollective.com/nest#sponsor" target="_blank"><img src="https://opencollective.com/nest/sponsors/badge.svg" alt="Sponsors on Open Collective" /></a>
-  <a href="https://paypal.me/kamilmysliwiec" target="_blank"><img src="https://img.shields.io/badge/Donate-PayPal-ff3f59.svg" alt="Donate us"/></a>
-    <a href="https://opencollective.com/nest#sponsor"  target="_blank"><img src="https://img.shields.io/badge/Support%20us-Open%20Collective-41B883.svg" alt="Support us"></a>
-  <a href="https://twitter.com/nestframework" target="_blank"><img src="https://img.shields.io/twitter/follow/nestframework.svg?style=social&label=Follow" alt="Follow us on Twitter"></a>
-</p>
-  <!--[![Backers on Open Collective](https://opencollective.com/nest/backers/badge.svg)](https://opencollective.com/nest#backer)
-  [![Sponsors on Open Collective](https://opencollective.com/nest/sponsors/badge.svg)](https://opencollective.com/nest#sponsor)-->
-
-## Description
-
-[Nest](https://github.com/nestjs/nest) framework TypeScript starter repository.
-
-## Project setup
-
-```bash
-$ npm install
+# Appointment App Backend (NestJS + GraphQL + PostgreSQL)
+This backend powers authentication, appointment CRUD, and reminder notifications for the appointment app.
+## What this service does
+- Registers and logs in users using email/password.
+- Issues JWT access tokens.
+- Protects appointment APIs with JWT auth.
+- Stores users and appointments in PostgreSQL using TypeORM.
+- Exposes:
+  - REST endpoints for auth and appointment CRUD.
+  - GraphQL queries/mutations for appointment operations and notifications.
+- Runs a cron job every minute to generate reminder notifications.
+## Tech stack
+- NestJS 11
+- GraphQL (Apollo)
+- TypeORM
+- PostgreSQL
+- Passport JWT + bcrypt
+- @nestjs/schedule (cron reminders)
+## Project structure
+```text
+src/
+  app.module.ts
+  main.ts
+  auth/
+    auth.module.ts
+    auth.controller.ts
+    auth.service.ts
+    jwt.strategy.ts
+    gql-auth.guard.ts
+  users/
+    user.entity.ts
+    users.module.ts
+    users.service.ts
+  appointments/
+    appointment.entity.ts
+    appointments.controller.ts
+    appointments.resolver.ts
+    appointments.service.ts
+    reminder.service.ts
 ```
-
-## Compile and run the project
-
-```bash
-# development
-$ npm run start
-
-# watch mode
-$ npm run start:dev
-
-# production mode
-$ npm run start:prod
+## Prerequisites
+- Node.js 18+
+- npm
+- PostgreSQL running locally
+## Database configuration used by this code
+Configured in `src/app.module.ts`:
+- host: `localhost`
+- port: `5432`
+- username: `postgres`
+- password: `postgres`
+- database: `appointments_db`
+- `synchronize: true` (auto-creates/updates schema in development)
+Create the database before starting:
+```sql
+CREATE DATABASE appointments_db;
 ```
-
-## Run tests
-
+## Installation
 ```bash
-# unit tests
-$ npm run test
-
-# e2e tests
-$ npm run test:e2e
-
-# test coverage
-$ npm run test:cov
+npm install
 ```
-
-## Deployment
-
-When you're ready to deploy your NestJS application to production, there are some key steps you can take to ensure it runs as efficiently as possible. Check out the [deployment documentation](https://docs.nestjs.com/deployment) for more information.
-
-If you are looking for a cloud-based platform to deploy your NestJS application, check out [Mau](https://mau.nestjs.com), our official platform for deploying NestJS applications on AWS. Mau makes deployment straightforward and fast, requiring just a few simple steps:
-
+## Run the backend
 ```bash
-$ npm install -g @nestjs/mau
-$ mau deploy
+# development with watcher
+npm run start:dev
 ```
-
-With Mau, you can deploy your application in just a few clicks, allowing you to focus on building features rather than managing infrastructure.
-
-## Resources
-
-Check out a few resources that may come in handy when working with NestJS:
-
-- Visit the [NestJS Documentation](https://docs.nestjs.com) to learn more about the framework.
-- For questions and support, please visit our [Discord channel](https://discord.gg/G7Qnnhy).
-- To dive deeper and get more hands-on experience, check out our official video [courses](https://courses.nestjs.com/).
-- Deploy your application to AWS with the help of [NestJS Mau](https://mau.nestjs.com) in just a few clicks.
-- Visualize your application graph and interact with the NestJS application in real-time using [NestJS Devtools](https://devtools.nestjs.com).
-- Need help with your project (part-time to full-time)? Check out our official [enterprise support](https://enterprise.nestjs.com).
-- To stay in the loop and get updates, follow us on [X](https://x.com/nestframework) and [LinkedIn](https://linkedin.com/company/nestjs).
-- Looking for a job, or have a job to offer? Check out our official [Jobs board](https://jobs.nestjs.com).
-
-## Support
-
-Nest is an MIT-licensed open source project. It can grow thanks to the sponsors and support by the amazing backers. If you'd like to join them, please [read more here](https://docs.nestjs.com/support).
-
-## Stay in touch
-
-- Author - [Kamil Myśliwiec](https://twitter.com/kammysliwiec)
-- Website - [https://nestjs.com](https://nestjs.com/)
-- Twitter - [@nestframework](https://twitter.com/nestframework)
-
-## License
-
-Nest is [MIT licensed](https://github.com/nestjs/nest/blob/master/LICENSE).
+Server starts on:
+- `http://localhost:3000`
+- GraphQL endpoint: `http://localhost:3000/graphql`
+## Available scripts
+- `npm run start` - start once
+- `npm run start:dev` - start with watch mode
+- `npm run start:prod` - run compiled output
+- `npm run build` - build TypeScript
+- `npm run lint` - lint and auto-fix
+- `npm run test` - unit tests
+- `npm run test:e2e` - e2e tests
+- `npm run test:cov` - coverage
+## Authentication flow
+### 1) Register
+`POST /auth/register`
+Body:
+```json
+{
+  "email": "user@example.com",
+  "password": "your-password"
+}
+```
+### 2) Login
+`POST /auth/login`
+Body:
+```json
+{
+  "email": "user@example.com",
+  "password": "your-password"
+}
+```
+Success response:
+```json
+{
+  "access_token": "<jwt-token>"
+}
+```
+### 3) Use token
+Send JWT on protected requests:
+```http
+Authorization: Bearer <jwt-token>
+```
+## REST appointment endpoints (JWT protected)
+Base route: `/appointments`
+- `GET /appointments` - get current user appointments
+- `POST /appointments` - create appointment
+- `PATCH /appointments/:id` - update appointment fields
+- `DELETE /appointments/:id` - delete appointment
+### Create appointment body
+```json
+{
+  "name": "Dentist",
+  "date": "2026-06-03",
+  "time": "14:30"
+}
+```
+### Validation/business rules in service
+- Name cannot be empty.
+- Cannot create appointments in the past.
+- Cannot create two appointments for the same user at the exact same date/time.
+## GraphQL API (JWT protected)
+Endpoint: `POST /graphql`
+### Queries
+- `appointments`: returns current user appointments
+- `dueNotifications`: returns unshown due reminders for current user
+### Mutations
+- `createAppointment(name, date, time)`
+- `updateAppointment(id, completed)`
+- `deleteAppointment(id)`
+- `markNotificationShown(id)`
+## Reminder system
+Implemented in `src/appointments/reminder.service.ts`:
+- Cron runs every minute: `* * * * *`.
+- For each appointment:
+  - Sets a "before" reminder when current time reaches 15 minutes before the appointment.
+  - Sets an "at" reminder when current time reaches appointment time.
+- Flags used:
+  - `reminderBeforeSent`
+  - `reminderAtSent`
+  - `notificationShown`
+  - `notificationType` (`before` or `at`)
+Frontend polls `dueNotifications` and then calls `markNotificationShown`.
+## Entities
+### `User`
+- `id`
+- `email` (unique)
+- `password` (hashed)
+### `Appointment`
+- `id`
+- `name`
+- `date` (string)
+- `time` (string)
+- `completed` (boolean)
+- `user` (many-to-one)
+- `reminderBeforeSent` (boolean)
+- `reminderAtSent` (boolean)
+- `notificationShown` (boolean)
+- `notificationType` (nullable string)
+## Important implementation notes
+- JWT secret is currently hardcoded in `auth.module.ts` and `jwt.strategy.ts` as `myappointmentappsecret`.
+- CORS is enabled globally in `main.ts`.
+- GraphQL schema is auto-generated to `src/schema.gql`.
+## Troubleshooting
+### Cannot connect to database
+- Ensure PostgreSQL is running.
+- Confirm username/password/db name match `app.module.ts`.
+### `Unauthorized` errors
+- Ensure you logged in and are sending `Authorization: Bearer <token>`.
+- Ensure frontend is storing token in localStorage key `token`.
+### Port already in use
+- Default is port `3000`.
+- Stop conflicting process or set `PORT` before startup.

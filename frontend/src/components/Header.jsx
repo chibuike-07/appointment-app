@@ -1,6 +1,6 @@
 import "./styles.css";
 
-const Header = ({title}) => {
+const Header = ({ title }) => {
     return (
         <div className="navbar">
             <h1>{title}</h1>
