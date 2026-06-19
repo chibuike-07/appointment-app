@@ -2,15 +2,15 @@ import { useState } from "react";
 import Button from "./Button";
 import "./styles.css";
 import { useMutation } from "@apollo/client/react";
-import { CREATE_APPOINTMENT } from "../graphql/mutations/mutations";
-import { GET_APPOINTMENTS } from "../graphql/queries/queries";
+import { CREATE_APPOINTMENT} from "../graphql/mutations/mutations";
+import { GET_APPOINTMENTS} from "../graphql/queries/queries";
 
-const AppointmentForm = ({ onAdd, creating }) => {
+const AppointmentForm = () => {
   const [name, setName] = useState("");
   const [date, setDate] = useState("");
   const [time, setTime] = useState("");
   const [validationError, setValidationError] = useState("");
-  const [createAppointment, { error }] = useMutation(
+  const [createAppointment, { error, loading }] = useMutation(
     CREATE_APPOINTMENT,
     {
       refetchQueries: [
@@ -105,8 +105,8 @@ const AppointmentForm = ({ onAdd, creating }) => {
         }}
       />
 
-      <Button text="Submit" onClick={handleSubmit} disabled={creating} />
-      {creating && <p>Creating appointment...</p>}
+      <Button text="Submit" onClick={handleSubmit} disabled={loading} />
+      {loading && <p>Creating appointment...</p>}
 
     </div>
   );

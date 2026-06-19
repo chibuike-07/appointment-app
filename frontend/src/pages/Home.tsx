@@ -2,29 +2,34 @@ import { useState, useEffect } from "react";
 import AppointmentForm from "../components/AppointmentForm";
 import AppointmentList from "../components/AppointmentList";
 import Header from "../components/Header";
-import { createAppointment } from "../api/appointment";
-import Login from "../pages/Login";
+import Login from "./Login";
 import Register from "./Register";
-import Button from "../components/Button";
 import { removeToken, isAuthenticated } from "../utils/auth";
 import AppointmentCounter from "../components/AppointmentCounter";
 
 import { useQuery } from "@apollo/client/react";
 import { useMutation } from "@apollo/client/react";
-import { UPDATE_APPOINTMENT } from "../graphql/mutations/mutations.js";
-import { DELETE_APPOINTMENT } from "../graphql/mutations/mutations.js";
-import { GET_APPOINTMENTS } from "../graphql/queries/queries.js";
+import { UPDATE_APPOINTMENT, DELETE_APPOINTMENT } from "../graphql/mutations/mutations";
+import { GET_APPOINTMENTS } from "../graphql/queries/queries";
 
+interface Appointment {
+  id: number;
+  name: string;
+  date: string;
+  time: string;
+  completed: boolean;
+}
+
+interface GetAppointmentsData {
+  appointments: Appointment[];
+}
 
 const Home = () => {
-  const [authMode, setAuthMode] = useState("login")
-  const [creating, setCreating] = useState(false);
+  const [authMode, setAuthMode] = useState<"login" | "register">("login");
 
-  // const [appointments, setAppointments] = useState([]);
-
-  const [isLoggedIn, setIsLoggedIn] = useState(isAuthenticated());
-  const [firstName, setFirstName] = useState('');
-  const [lastName, setLastName] = useState('');
+  const [isLoggedIn, setIsLoggedIn] = useState<boolean>(isAuthenticated());
+  const [firstName, setFirstName] = useState<string>('');
+  const [lastName, setLastName] = useState<string>('');
   useEffect(() => {
     setFirstName(localStorage.getItem('firstName') || '');
     setLastName(localStorage.getItem('lastName') || '');
@@ -42,7 +47,7 @@ const Home = () => {
     removeToken();
     setIsLoggedIn(false);
   };
-  const { loading, error, data } = useQuery(GET_APPOINTMENTS, {
+  const { loading, error, data } = useQuery<GetAppointmentsData>(GET_APPOINTMENTS, {
     skip: !isLoggedIn,
     fetchPolicy: 'network-only'
   });
@@ -69,25 +74,9 @@ const Home = () => {
       }
     );
 
-
-  //creating appointment on endpoint
-  const addAppointment = async (appointment) => {
-    setCreating(true)
-
-    try {
-      const newAppt = await createAppointment(appointment);
-      setAppointments((prev) => [...prev, newAppt]);
-    } catch (err) {
-      console.error(err);
-      setError("failed to create appointment")
-    } finally {
-      setCreating(false);
-    }
-  };
-
   //deleting appointment
   const handleDelete = async (
-    id
+    id: number
   ) => {
     try {
       await deleteAppointment({
@@ -100,8 +89,8 @@ const Home = () => {
 
   //completing appointment
   const toggleComplete = async (
-    id,
-    completed
+    id: number,
+    completed: boolean
   ) => {
     try {
       await updateAppointment({
@@ -116,15 +105,19 @@ const Home = () => {
     }
   };
 
-  const handleUpdate = async (id, updatedFields) => {
+  const handleUpdate = async (
+    id: number,
+    updatedFields: { name: string; date: string; time: string }
+  ) => {
     try {
-      const updated = await updateAppointment(id, updatedFields);
-      setAppointments((prev) =>
-        prev.map((appt) => (appt.id === id ? updated : appt))
-      );
+      await updateAppointment({
+        variables: {
+          id,
+          ...updatedFields,
+        },
+      });
     } catch (err) {
       console.error(err);
-      setError("Failed to update appointment");
     }
   };
 
@@ -151,7 +144,7 @@ const Home = () => {
       />
     );
   }
-  if (loading) {
+  if (loading && !data) {
     return (
       <div className="loading-container">
         <div className="loading-spinner"></div>
@@ -184,7 +177,7 @@ const Home = () => {
       ) : null}
       <AppointmentCounter appointments={appointments} />
       <div className="form-list section">
-        <AppointmentForm onAdd={addAppointment} creating={creating} />
+        <AppointmentForm />
         {/* {loading &&<p>Loading Appointment...</p>}  */}
 
         <AppointmentList appointments={appointments} onDelete={handleDelete} onToggle={toggleComplete} onEdit={handleUpdate} />

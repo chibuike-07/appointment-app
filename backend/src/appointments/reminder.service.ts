@@ -15,6 +15,10 @@ export class ReminderService {
   async handleReminderCheck() {
     const appointments =
     await this.appointmentRepo.find({
+      where: [
+        {reminderBeforeSent: false},
+        {reminderAtSent: false}
+      ],
       relations: ['user'],
     });
     const now = new Date();
@@ -48,9 +52,7 @@ export class ReminderService {
             now >= reminderBeforeTime &&
             !appointment.reminderBeforeSent
         ) {
-        console.log(
-            `Reminder: ${appointment.name} starts in 15 minutes`,
-        );
+        console.log( `Reminder: ${appointment.name} starts in 15 minutes`,);
         appointment.reminderBeforeSent = true;
         appointment.notificationShown = false;
         appointment.notificationType = 'before';
@@ -62,11 +64,7 @@ export class ReminderService {
             !appointment.reminderAtSent
         ) {
 
-            console.log(
-                `Reminder:
-                ${appointment.name}
-                starts NOW`
-            );
+            console.log(`Reminder: ${appointment.name} starts NOW`);
 
             appointment.reminderAtSent = true;
             appointment.notificationShown = false;
@@ -74,12 +72,8 @@ export class ReminderService {
 
             await this.appointmentRepo.save(appointment);
           }
-          console.log(
-            'NOW:',
-            now.toLocaleString(
-              'en-NG',
-              { timeZone: 'Africa/Lagos' }
-            )
+          console.log('NOW:', now.toLocaleString
+            ('en-NG', { timeZone: 'Africa/Lagos' })
           );
 
           console.log(

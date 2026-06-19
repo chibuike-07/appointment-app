@@ -1,16 +1,42 @@
 import "./styles.css";
 import { useState } from "react";
 
-const AppointmentList = ({ appointments, onDelete, onToggle, onEdit }) => {
-  const [editingId, setEditingId] = useState(null);
+interface Appointment {
+  id: number;
+  name: string;
+  date: string;
+  time: string;
+  completed: boolean;
+}
+
+type AppointmentListProps = {
+  appointments: Appointment[];
+  onDelete: (id: number) => void;
+  onToggle: (id: number, completed: boolean) => void;
+  onEdit: (id: number, updates: {
+    name: string,
+    date: string,
+    time: string
+  }) => void;
+}
+type FilterType =
+  | "all"
+  | "overdue"
+  | "today"
+  | "tomorrow"
+  | "upcoming";
+
+const AppointmentList = ({ appointments, onDelete, onToggle, onEdit }: AppointmentListProps) => {
+  const [editingId, setEditingId] = useState<number | null>(null);
   const [editedName, setEditedName] = useState("");
   const [editedDate, setEditedDate] = useState("");
   const [editedTime, setEditedTime] = useState("");
 
   const [searchTerm, setSearchTerm] = useState('');
-  const [filter, setFilter] = useState('all')
 
-  const startEdit = (appt) => {
+  const [filter, setFilter] = useState<FilterType>("all")
+
+  const startEdit = (appt: Appointment) => {
     setEditingId(appt.id);
     setEditedName(appt.name);
     setEditedDate(appt.date);
@@ -18,21 +44,30 @@ const AppointmentList = ({ appointments, onDelete, onToggle, onEdit }) => {
   };
 
   const saveEdit = () => {
-    onEdit(editingId, {
-      name: editedName,
-      date: editedDate,
-      time: editedTime,
-    });
-    setEditingId(null);
+    if (editingId !== null) {
+      onEdit(editingId, {
+        name: editedName,
+        date: editedDate,
+        time: editedTime,
+      });
+      setEditingId(null);
+    }
   };
 
-  const groupAppointments = () => {
+  type GroupedAppointments = {
+    overdue: Appointment[];
+    today: Appointment[];
+    tomorrow: Appointment[];
+    upcoming: Appointment[];
+  }
+
+  const groupAppointments = (): GroupedAppointments => {
     const today = new Date();
     today.setHours(0, 0, 0, 0);
     const tomorrow = new Date();
     tomorrow.setDate(tomorrow.getDate() + 1);
 
-    const grouped = {
+    const grouped: GroupedAppointments = {
       overdue: [],
       today: [],
       tomorrow: [],
@@ -58,23 +93,25 @@ const AppointmentList = ({ appointments, onDelete, onToggle, onEdit }) => {
     return grouped;
   };
 
-  const applyFilters = (appointments) => {
+  const applyFilters = (appointments: Appointment[]): Appointment[] => {
     return appointments
       .filter(
         (appointment) => appointment.name.toLowerCase().includes(searchTerm.toLowerCase())
       );
-    };
+  };
 
   const grouped = groupAppointments();
-  const sortAppointments = (appointments) => {
-  return [...appointments].sort(
-    (a, b) => {
+  const sortAppointments = (appointments: Appointment[]): Appointment[] => {
+    return [...appointments].sort(
+      (a, b) => {
         const dateA = new Date(`${a.date} ${a.time}`);
         const dateB = new Date(`${b.date} ${b.time}`);
-        return dateA - dateB;
+        return (
+          dateA.getTime() - dateB.getTime()
+        );
       }
     );
-};
+  };
 
   const filteredGroups = {
     overdue: sortAppointments(applyFilters(grouped.overdue)),
@@ -84,20 +121,20 @@ const AppointmentList = ({ appointments, onDelete, onToggle, onEdit }) => {
   };
 
   const visibleSections =
-  filter === 'all' ? filteredGroups
-  :{[filter]: filteredGroups[filter]};
+    filter === 'all' ? filteredGroups
+      : { [filter]: filteredGroups[filter] };
 
 
-  
 
-  const renderAppointmentItem = (appt) => (
+
+  const renderAppointmentItem = (appt: Appointment) => (
     <div key={appt.id} className="appointment-list">
       <div className="appt-info">
         {editingId === appt.id ? (
           <div className="edit-form-inline">
             <input
               value={editedName}
-              onChange={(e) => setEditedName(e.target.value)}
+              onChange={(e: React.ChangeEvent<HTMLInputElement>) => setEditedName(e.target.value)}
               className="edit-input"
             />
             <div className="edit-date-time">
@@ -169,8 +206,8 @@ const AppointmentList = ({ appointments, onDelete, onToggle, onEdit }) => {
         onMouseLeave={(e) => e.currentTarget.style.color = "var(--text-secondary)"}
       >
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
-          <path d="M12 20h9"/>
-          <path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4Z"/>
+          <path d="M12 20h9" />
+          <path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4Z" />
         </svg>
       </button>
     </div>
@@ -181,17 +218,17 @@ const AppointmentList = ({ appointments, onDelete, onToggle, onEdit }) => {
       <div className="appointment-list-header">
         <span title="Appointments" style={{ display: 'flex', alignItems: 'center' }}>
           <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-            <path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/>
-            <rect x="8" y="2" width="8" height="4" rx="1" ry="1"/>
-            <line x1="8" y1="12" x2="16" y2="12"/>
-            <line x1="8" y1="16" x2="12" y2="16"/>
+            <path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2" />
+            <rect x="8" y="2" width="8" height="4" rx="1" ry="1" />
+            <line x1="8" y1="12" x2="16" y2="12" />
+            <line x1="8" y1="16" x2="12" y2="16" />
           </svg>
         </span>
         <div className="search-wrapper">
           <span className="search-icon">
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-              <circle cx="11" cy="11" r="8"/>
-              <line x1="21" y1="21" x2="16.65" y2="16.65"/>
+              <circle cx="11" cy="11" r="8" />
+              <line x1="21" y1="21" x2="16.65" y2="16.65" />
             </svg>
           </span>
           <input className="search-input" type="text" placeholder="Search Appointment" value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} />
@@ -199,11 +236,11 @@ const AppointmentList = ({ appointments, onDelete, onToggle, onEdit }) => {
         <div className="filter-wrapper">
           <span className="filter-icon">
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-              <polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"/>
+              <polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3" />
             </svg>
           </span>
           <select value={filter}
-            onChange={(e) => setFilter(e.target.value)}>
+            onChange={(e: React.ChangeEvent<HTMLSelectElement>) => setFilter(e.target.value as FilterType)}>
             <option value="all">All</option>
             <option value="overdue">Overdue</option>
             <option value="today">Today</option>
@@ -212,7 +249,7 @@ const AppointmentList = ({ appointments, onDelete, onToggle, onEdit }) => {
           </select>
           <span className="dropdown-arrow">
             <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-              <polyline points="6 9 12 15 18 9"/>
+              <polyline points="6 9 12 15 18 9" />
             </svg>
           </span>
         </div>
@@ -228,10 +265,10 @@ const AppointmentList = ({ appointments, onDelete, onToggle, onEdit }) => {
           gap: '0.75rem',
         }}>
           <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="var(--text-secondary)" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-            <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/>
-            <line x1="16" y1="2" x2="16" y2="6"/>
-            <line x1="8" y1="2" x2="8" y2="6"/>
-            <line x1="3" y1="10" x2="21" y2="10"/>
+            <rect x="3" y="4" width="18" height="18" rx="2" ry="2" />
+            <line x1="16" y1="2" x2="16" y2="6" />
+            <line x1="8" y1="2" x2="8" y2="6" />
+            <line x1="3" y1="10" x2="21" y2="10" />
           </svg>
           <p style={{ fontSize: '1.1rem', fontWeight: '500', margin: 0 }}>No appointments yet</p>
         </div>

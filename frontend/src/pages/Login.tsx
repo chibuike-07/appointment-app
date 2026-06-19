@@ -1,10 +1,26 @@
 import { useState } from "react";
+import { useMutation } from "@apollo/client/react";
 import { saveToken } from "../utils/auth";
+import { LOGIN } from "../graphql/mutations/mutations";
 
-const Login = ({ onLogin, goToRegister }) => {
+interface LoginProps {
+  onLogin: () => void;
+  goToRegister: () => void;
+}
+
+const Login = ({ onLogin, goToRegister }: LoginProps) => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
+  interface LoginResponse {
+    login: {
+      access_token: string;
+      firstName: string;
+      lastName: string;
+    };
+  }
+
+  const [loginMutation] = useMutation<LoginResponse>(LOGIN);
 
   const handleLogin = async () => {
     if (!email || !password) {
@@ -13,35 +29,23 @@ const Login = ({ onLogin, goToRegister }) => {
     }
     try {
       setError("");
-      const res = await fetch(
-        "http://localhost:3000/auth/login",
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            email,
-            password,
-          }),
-        }
-      );
+      const { data } = await loginMutation({
+        variables: {
+          email,
+          password,
+        },
+      });
 
-      const data = await res.json();
-
-      if (!res.ok) {
-        setError(data.message || "Invalid credentials");
-        return;
+      if (data?.login) {
+        saveToken(data.login.access_token);
+        localStorage.setItem("firstName", data.login.firstName);
+        localStorage.setItem("lastName", data.login.lastName);
       }
 
-      saveToken(data.access_token);
-      localStorage.setItem('firstName', data.firstName);
-      localStorage.setItem('lastName', data.lastName);
-
       onLogin();
-    } catch (err) {
+    } catch (err: any) {
       console.error(err);
-      setError("Unable to connect to server. Please try again.");
+      setError(err.message || "Login failed");
     }
   };
 
@@ -78,7 +82,7 @@ const Login = ({ onLogin, goToRegister }) => {
               type="email"
               placeholder="Email address"
               value={email}
-              onChange={(e) => {
+              onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
                 setEmail(e.target.value);
                 if (error) setError("");
               }}
@@ -94,7 +98,8 @@ const Login = ({ onLogin, goToRegister }) => {
               type="password"
               placeholder="Password"
               value={password}
-              onChange={(e) => {setPassword(e.target.value);
+              onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
+                setPassword(e.target.value);
                 if (error) setError("");
               }}
             />

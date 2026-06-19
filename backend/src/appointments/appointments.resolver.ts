@@ -3,6 +3,8 @@ import { UseGuards } from '@nestjs/common';
 import { Appointment } from './appointment.entity';
 import { AppointmentsService } from './appointments.service';
 import { GqlAuthGuard } from '../auth/gql-auth.guard';
+import { CreateAppointmentArgs } from './dto/create-appointment.args';
+import { UpdateAppointmentArgs } from './dto/update-appointment.args';
 
 @Resolver(() => Appointment)
 @UseGuards(GqlAuthGuard)
@@ -13,17 +15,15 @@ export class AppointmentsResolver {
 
   @Mutation(() => Appointment)
   createAppointment(
-    @Args('name') name: string,
-    @Args('date') date: string,
-    @Args('time') time: string,
+    @Args() args: CreateAppointmentArgs,
     @Context() context,
   ) {
     const userId = context.req.user.userId;
 
     return this.appointmentsService.create({
-      name,
-      date,
-      time,
+      name: args.name,
+      date: args.date,
+      time: args.time,
     }, userId);
   }
 
@@ -31,13 +31,16 @@ export class AppointmentsResolver {
   updateAppointment(
     @Args('id', { type: () => Int })
     id: number,
-
-    @Args('completed')
-    completed: boolean,
+    @Args() args: UpdateAppointmentArgs,
   ) {
+    const updateData: Record<string, unknown> = {};
+    if (typeof args.completed === 'boolean') updateData.completed = args.completed;
+    if (typeof args.name === 'string') updateData.name = args.name;
+    if (typeof args.date === 'string') updateData.date = args.date;
+    if (typeof args.time === 'string') updateData.time = args.time;
     return this.appointmentsService.update(
       id,
-      { completed },
+      updateData,
     );
   }
 

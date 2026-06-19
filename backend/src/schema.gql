@@ -14,6 +14,12 @@ type Appointment {
   notificationType: String
 }
 
+type AuthResponse {
+  access_token: String!
+  firstName: String!
+  lastName: String!
+}
+
 type Query {
   hello: String!
   status: String!
@@ -23,7 +29,9 @@ type Query {
 
 type Mutation {
   createAppointment(name: String!, date: String!, time: String!): Appointment!
-  updateAppointment(id: Int!, completed: Boolean!): Appointment!
+  updateAppointment(id: Int!, completed: Boolean, name: String, date: String, time: String): Appointment!
   deleteAppointment(id: Int!): Boolean!
   markNotificationShown(id: Float!): Boolean!
+  register(firstName: String!, lastName: String!, email: String!, password: String!): Boolean!
+  login(email: String!, password: String!): AuthResponse!
 }

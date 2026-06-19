@@ -24,11 +24,11 @@ export class AuthService {
   async login(email: string, password: string) {
     const user = await this.usersService.findByEmail(email);
 
-    if (!user) throw new UnauthorizedException();
+    if (!user) throw new UnauthorizedException('User not found');
 
     const valid = await bcrypt.compare(password, user.password);
 
-    if (!valid) throw new UnauthorizedException();
+    if (!valid) throw new UnauthorizedException('Invalid password');
 
     return {
       access_token: this.jwtService.sign({
